@@ -1,0 +1,97 @@
+{% load static %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Be My Valentine?</title>
+    <style>
+        body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Arial', sans-serif; background-color: #F5F5DC; }
+        h1 {
+        color: #8E6E8E; /* A slightly darker lilac for the heading */
+        font-weight: 300;}
+        img { width: 300px;
+        border-radius: 20px; /* Rounds the corners */
+        border: 10px solid white; /* Gives it a frame */
+        box-shadow: 0 10px 20px rgba(200, 162, 200, 0.3); /* Adds a soft shadow */
+        margin: 20px 0;
+        }
+        .img-container { display: flex;
+        /* Optional: adds space around items and centers content */
+        justify-content: center;
+        gap: 10px; /* Optional: adds space between images */
+        }
+        
+        .btn-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap; /* Allows children to move relative to this */
+        width: 100%;
+        min-height: 200px;
+        }
+
+        #yesBtn {
+        background-color: #C8A2C8; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 18px; z-index: 10; position: relative; order: -1; transition: transform 0.3s ease;
+        z-index: 10; /* Ensures Yes stays on top of the No button */
+        }
+
+        #noBtn {
+        background-color: #E2E2E2; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 18px;
+        z-index: 5;
+        
+        }
+    </style>
+</head>
+<body>
+    <h1>¿Serás mi Valentín, Yetsi? ❤️</h1>
+    <div class = "img-container">
+        <img src="{% static 'fav_1.jpeg' %}" alt="Us">
+        <img src="{% static 'fav_2.jpeg' %}" alt="Us2">
+    </div>
+    <div class="btn-container">
+        <button id="yesBtn" onclick="celebrate()">Si</button>
+        <button id="noBtn">No</button>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        let yesScale= 1;
+        
+        noBtn.addEventListener('click', () => {
+            // 1. Make No bigger
+            yesScale += 1.5; // Aggressive growth!
+            yesBtn.style.transform = `scale(${yesScale})`;
+
+            // Change the text on the No button to be funny
+            const messages = ["Estas segura?", "¡Piensa de nuevo!", "¡Hiciste clic en el equivocado!", "¡Buen intento!"];
+            noBtn.innerText = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Optional: Add a fun "persuading" message to the Yes button
+            if (yesScale> 5) {
+                yesBtn.innerText = "DI SÍ....¡O SI NO!";
+            }
+        });
+
+        yesBtn.addEventListener('click', () => {
+            // This sends the "Yes" to your Django server without refreshing the page
+            fetch("/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+            }).then(() => {
+                // Updated Success Screen
+                document.body.innerHTML = `
+                    <img src="{% static 'me.jpg' %}" alt="Me">
+                    <div style="text-align:center;">
+                        <h1 style="font-size: 3rem;">💜</h1>
+                        <h1 style="color: #8E6E8E;">¡ES UNA CITA!</h1>
+                        <p style="color: #4A4A4A;">No puedo esperar a verte.</p>
+                    </div>
+                `;
+                document.body.style.backgroundColor = "#F5F5DC"; 
+            });
+        });
+    </script>
+</body>
+</html>
